@@ -108,5 +108,6 @@ dist
 *.d.ts
 *.map
 
-#ignore test directory
+#ignore test and __health file directory
 test
+__health

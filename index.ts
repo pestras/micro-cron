@@ -11,11 +11,11 @@ import { Micro, MicroPlugin } from '@pestras/micro';
  * array for specific values 
  */
 export interface Schedule {
-  months?: number | `${number}-${number}` | number[];
-  days?: number | `${number}-${number}` | number[];
-  daysOfWeek?: number | `${number}-${number}` | number[];
-  hours?: number | `${number}-${number}` | number[];
-  minutes?: number | `${number}-${number}` | number[];
+  months?: number | `${number}-${number}` | number[] | `${number}-${number}`[];
+  days?: number | `${number}-${number}` | number[] | `${number}-${number}`[];
+  daysOfWeek?: number | `${number}-${number}` | number[] | `${number}-${number}`[];
+  hours?: number | `${number}-${number}` | number[] | `${number}-${number}`[];
+  minutes?: number | `${number}-${number}` | number[] | `${number}-${number}`[];
 }
 
 const timeRangeList: Schedule = {
@@ -34,6 +34,16 @@ export interface Job {
   active: boolean;
 }
 
+function getRangeValues(value: `${number}-${number}`) {
+  const range: number[] = [];
+  const pairs = value.split('-').map(v => +v);
+
+  for (let i = pairs[0]; i <= pairs[1]; i++)
+    range.push(i);
+
+  return range;
+}
+
 const jobs: Job[] = [];
 
 function parseSchedule(s: Schedule) {
@@ -44,8 +54,17 @@ function parseSchedule(s: Schedule) {
     if (!value)
       continue;
 
-    if (Array.isArray(value))
-      result[prop as keyof Schedule] = value;
+    if (Array.isArray(value)) {
+      result[prop as keyof Schedule] = [];
+
+      for (let v of value)
+        if (typeof v === "number")
+          (result[prop as keyof Schedule] as number[]).push(v);
+        else
+          (result[prop as keyof Schedule] as number[]).push(...getRangeValues(v));
+
+      continue;
+    }
 
     if (typeof value === 'string') {
       const range: number[] = [];
@@ -106,6 +125,8 @@ let activeCount = 0;
 export class MicroCron extends MicroPlugin {
   private static _instance: MicroCron;
 
+  healthy = true;
+
   constructor() {
     super();
 
@@ -117,7 +138,7 @@ export class MicroCron extends MicroPlugin {
 
   init() {
     activeCount = jobs.filter(j => j.active).length;
-    Micro.logger.info(`found ${activeCount} active cron jobs`);
+    Micro.logger.info(`found ${activeCount} active cron job${activeCount !== 1 ? 's' : ''}`);
 
     this.ready = true;
     this.live = true;
@@ -173,7 +194,7 @@ export class MicroCron extends MicroPlugin {
     activeCount = jobs.filter(j => j.active).length;
     Micro.logger.info(`number of current active cron jobs: ${activeCount}`);
   }
-  
+
   static Start(name: string) {
     Micro.logger.info(`starting cron job '${name}'`);
     const job = jobs.find(j => j.name === name)
