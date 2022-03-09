@@ -1,0 +1,24 @@
+{
+  "name": "@pestras/micro-cron",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pestras/micro-cron.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pestras/micro-cron/issues"
+  },
+  "homepage": "https://github.com/pestras/micro-cron#readme",
+  "devDependencies": {
+    "@pestras/micro": "^1.2.5",
+    "typescript": "^4.6.2"
+  }
+}

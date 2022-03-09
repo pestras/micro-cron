@@ -102,3 +102,11 @@ dist
 
 # TernJS port file
 .tern-port
+
+# only ts files
+*.js
+*.d.ts
+*.map
+
+#ignore test directory
+test
